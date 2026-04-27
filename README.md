@@ -64,7 +64,7 @@ The AI doesn't make the *clinical decisions* — those are the family's medical 
 - **Structured extraction with schema validation.** PDF parsing is not "ask the model what's in this document and hope." Each document type has a target shape (Zod schema), the prompt asks for that shape explicitly, and the response is parsed and validated before it becomes a database row. Failed validation falls back to the user with a specific diff of what's missing.
 - **Multi-step reasoning per claim submission.** Each submission requires: choose a prefill source, evaluate which existing service lines to keep/copy/delete, transcribe each line correctly into a React form, verify the running total, submit. The agent walks this path one step at a time, observing the DOM after each action.
 - **Tool use against the live page.** The agent reads from the DOM (`querySelectorAll`, value inspection), writes to it via the React-internal handler (`__reactProps$.onChange`), and clicks via lookup-by-text (`Element.click()` on the button whose `textContent` matches). This is non-trivial orchestration — the portal punishes naive automation.
-- **Runbook-as-memory (curated RAG).** A markdown process doc is the agent's persistent memory between sessions. Hard-won findings — "save after every line," "delete from last to first to avoid index shift," "prefill dialog radios must use JS click, not coordinate click" — are captured there, and every new session reads it before acting. Deliberately small, narrow, and accurate. This domain has maybe 30 facts worth knowing about; a hand-curated markdown file beats a vector store.
+- **Runbook-as-memory (curated RAG).** A markdown process doc is the agent's persistent memory between sessions. Hard-won findings — "save after every line," "delete from last to first to avoid index shift," "prefill dialog radios must use JS click, not coordinate click" — are captured there, and every new session reads it before acting. Deliberately small, narrow, and accurate. This domain has maybe 30 facts worth knowing about; a hand-curated markdown file beats a vector store. The redacted runbook is included with this submission at [`docs/portal-submission-runbook.md`](docs/portal-submission-runbook.md).
 - **Human-in-the-loop on irreversible actions.** Drafting, editing, extraction are all delegated. The final Submit click is human-approved — both because it's the right product decision and because it makes the system trustworthy enough to actually use on real money.
 
 **Why these choices**
@@ -220,8 +220,8 @@ claimpilot/
 **Run it**
 ```bash
 # Clone the repo
-git clone https://github.com/<your-username>/claimpilot.git
-cd claimpilot
+git clone https://github.com/icastrocr/claimpilot-public.git
+cd claimpilot-public
 
 # Configure environment
 cp .env.example .env
@@ -239,7 +239,7 @@ Open **http://localhost:3000** to use ClaimPilot.
 **Using the run-time portal-submission agent (optional but recommended)**
 1. Log in to your insurer's portal in Chrome as you normally would.
 2. Open the Cowork desktop app with this project's folder selected.
-3. Ask: *"Submit the February batch of claims, using the runbook in this folder."*
+3. Ask: *"Submit the February batch of claims, using the runbook at `docs/portal-submission-runbook.md`."*
 4. The agent will read the runbook, propose its plan, and execute under your supervision. You approve the final Submit click for each claim.
 
 ---
@@ -255,7 +255,7 @@ A 5-minute Loom walkthrough is linked in the application form (Video URL field).
 5. **What I'd build next** — multi-payer, reimbursement reconciliation, generalization to other self-filed paperwork (~30s).
 6. **Why I'm applying** — sign-off (~15s).
 
-To reproduce the demo locally, follow Getting Started above and use the seeded fake claims (`npm run db:seed`) — these are entirely synthetic and contain no PHI.
+To reproduce the demo locally, follow Getting Started above. Migrations and a `demo` user (`demo` / `password123`) are seeded automatically on first boot; the database otherwise starts empty — use the document-import flow to populate it with your own test PDFs (see [`docs/examples/README.md`](docs/examples/README.md) for the expected document shapes). No real PHI ships with the repo.
 
 ---
 
@@ -296,6 +296,17 @@ Testing approach is end-to-end and supervised. Each monthly batch is a real test
 ClaimPilot is intentionally **not** a public-facing SaaS. The application runs locally on the user's machine because the data class — health information for a family member — does not belong on someone else's server.
 
 The repository is the artifact. A walkthrough video is linked in the application.
+
+---
+
+## Repository Tour
+
+This README is the submission narrative. For a codebase walkthrough — architecture diagrams, status lifecycles, file layout, full API surface, and database schema — see **[README-CLAIMPILOT.md](README-CLAIMPILOT.md)**. Other reference material lives in:
+
+- **[docs/SPEC.md](docs/SPEC.md)** — full product specification (data model, all 16 tables, phased build plan, code reference tables).
+- **[docs/portal-submission-runbook.md](docs/portal-submission-runbook.md)** — the agent's persistent memory: portal quirks, React-internals workarounds, troubleshooting matrix.
+- **[CHANGELOG.md](CHANGELOG.md)** — version history (v0.1.0 through v0.4.0).
+- **[docs/examples/README.md](docs/examples/README.md)** — guidance on supplying your own test PDFs (the originals contained PHI and were removed).
 
 ---
 
