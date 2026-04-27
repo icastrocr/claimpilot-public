@@ -225,11 +225,11 @@ cd claimpilot-public
 
 # Configure environment
 cp .env.example .env
-# Edit .env — at minimum, set ANTHROPIC_API_KEY and a JWT_SECRET.
-# No real keys ship in the repo; .env.example uses placeholder values only.
+# Add your ANTHROPIC_API_KEY for the PDF-extraction features.
+# The other defaults in .env.example work for local development as-is.
 
-# Bring up the three-service stack
-docker compose up
+# Bring up the three-service stack (build images on first run)
+docker compose up --build
 ```
 
 You should see three services come up: `frontend` (nginx serving the Vite build, exposed on host port 3000), `backend` (Express + TypeScript on port 4000), and `db` (PostgreSQL 16 on port 5432). Prisma migrations run automatically on backend startup.
@@ -246,7 +246,7 @@ Open **http://localhost:3000** to use ClaimPilot.
 
 ## Demo
 
-A 5-minute Loom walkthrough is linked in the application form (Video URL field). The video covers:
+A 5-minute walkthrough is published at this [Google Drive folder](https://drive.google.com/drive/folders/11X8ROvElqTzQdmJDL2v5gyDX25VlxRZx?usp=drive_link) (and linked from the application form's Video URL field). The video covers:
 
 1. **The problem** — why OON behavioral-health filing is broken and who's affected (~45s).
 2. **Live demo of the working solution** — a Draft claim in ClaimPilot, prefilled into the insurer portal, edited via the React-internal handler, submitted, confirmation number captured, status updated in ClaimPilot (~75s).

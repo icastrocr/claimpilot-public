@@ -65,9 +65,11 @@ EoB PDF ──▶ AI Extraction ──▶ Apply to Draft Claims ──▶ Resolv
 git clone https://github.com/icastrocr/claimpilot-public.git
 cd claimpilot-public
 cp .env.example .env
-# Add your ANTHROPIC_API_KEY to .env for document import
+# Add your ANTHROPIC_API_KEY to .env for document import.
+# The other defaults work for local development as-is.
 docker compose up --build
-# Open http://localhost:3000
+# Open http://localhost:3000 — log in as demo / password123
+# (the demo user is seeded automatically on first boot)
 ```
 
 ## Features
