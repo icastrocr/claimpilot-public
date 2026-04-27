@@ -1,0 +1,429 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  handle        String    @unique @db.VarChar(50)
+  email         String    @unique @db.VarChar(255)
+  passwordHash  String    @map("password_hash") @db.VarChar(255)
+  settingsJson  Json?     @map("settings_json") @db.JsonB
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+
+  insuranceProviders InsuranceProvider[]
+  clinicOrganizations ClinicOrganization[]
+  clinicians         Clinician[]
+  dependents         Dependent[]
+  claims             Claim[]
+  payments           Payment[]
+  eobDocuments       EobDocument[]
+  chatSessions       ChatSession[]
+  planBalanceSnapshots PlanBalanceSnapshot[]
+  superbills         Superbill[]
+  nonClaimableCharges NonClaimableCharge[]
+  serviceLineItems   ServiceLineItem[]
+  reconciliationReports ReconciliationReport[]
+
+  @@map("users")
+}
+
+model InsuranceProvider {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  name          String    @db.VarChar(255)
+  planType      String?   @map("plan_type") @db.VarChar(50)
+  policyNumber  String?   @map("policy_number") @db.VarChar(100)
+  groupNumber   String?   @map("group_number") @db.VarChar(100)
+  claimsAddress String?   @map("claims_address")
+  claimsPhone   String?   @map("claims_phone") @db.VarChar(20)
+  portalUrl     String?   @map("portal_url") @db.VarChar(500)
+  notes         String?
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+
+  user          User      @relation(fields: [userId], references: [id])
+  claims        Claim[]
+  eobDocuments  EobDocument[]
+  serviceLineItems ServiceLineItem[]
+
+  @@map("insurance_providers")
+}
+
+model ClinicOrganization {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  name            String    @db.VarChar(255)
+  address         String?
+  phone           String?   @db.VarChar(20)
+  ein             String?   @db.VarChar(20)
+  npi             String?   @db.VarChar(10)
+  superbillFormat String?   @map("superbill_format") @db.VarChar(50)
+  billingContact  String?   @map("billing_contact") @db.VarChar(255)
+  notes           String?
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+
+  user            User      @relation(fields: [userId], references: [id])
+  clinicians      Clinician[]
+  claims          Claim[]
+  superbills      Superbill[]
+  nonClaimableCharges NonClaimableCharge[]
+  serviceLineItems ServiceLineItem[]
+
+  @@map("clinic_organizations")
+}
+
+model Clinician {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  clinicId        String    @map("clinic_id") @db.Uuid
+  name            String    @db.VarChar(255)
+  credential      String?   @db.VarChar(50)
+  licenseNumber   String?   @map("license_number") @db.VarChar(50)
+  npi             String?   @db.VarChar(10)
+  specialty       String?   @db.VarChar(100)
+  typicalCptCodes String[]  @map("typical_cpt_codes") @db.VarChar(50)
+  ratePerSession  Decimal?  @map("rate_per_session") @db.Decimal(10, 2)
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+
+  user            User      @relation(fields: [userId], references: [id])
+  clinic          ClinicOrganization @relation(fields: [clinicId], references: [id])
+  serviceLineItems ServiceLineItem[]
+  nonClaimableCharges NonClaimableCharge[]
+
+  @@map("clinicians")
+}
+
+model Dependent {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  firstName     String    @map("first_name") @db.VarChar(100)
+  lastName      String    @map("last_name") @db.VarChar(100)
+  dateOfBirth   DateTime  @map("date_of_birth") @db.Date
+  relationship  String    @db.VarChar(50)
+  memberId      String?   @map("member_id") @db.VarChar(100)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+
+  user          User      @relation(fields: [userId], references: [id])
+  claims        Claim[]
+  planBalanceSnapshots PlanBalanceSnapshot[]
+  serviceLineItems ServiceLineItem[]
+
+  @@map("dependents")
+}
+
+model Claim {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @map("user_id") @db.Uuid
+  insuranceProviderId   String    @map("insurance_provider_id") @db.Uuid
+  clinicId              String    @map("clinic_id") @db.Uuid
+  dependentId           String    @map("dependent_id") @db.Uuid
+  claimNumber           String?   @map("claim_number") @db.VarChar(100)
+  patientAccountNumber  String?   @map("patient_account_number") @db.VarChar(100)
+  claimPart             String?   @map("claim_part") @db.VarChar(20)
+  paymentDate           DateTime? @map("payment_date") @db.Date
+  paymentCheckNumber    String?   @map("payment_check_number") @db.VarChar(50)
+  paymentAmount         Decimal?  @map("payment_amount") @db.Decimal(10, 2)
+  dateSubmitted         DateTime? @map("date_submitted") @db.Date
+  servicePeriodStart    DateTime? @map("service_period_start") @db.Date
+  servicePeriodEnd      DateTime? @map("service_period_end") @db.Date
+  totalBilled           Decimal?  @map("total_billed") @db.Decimal(10, 2)
+  allowedAmount         Decimal?  @map("allowed_amount") @db.Decimal(10, 2)
+  amountSaved           Decimal?  @map("amount_saved") @db.Decimal(10, 2)
+  insurancePaid         Decimal?  @map("insurance_paid") @db.Decimal(10, 2)
+  patientResponsibility Decimal?  @map("patient_responsibility") @db.Decimal(10, 2)
+  deductibleApplied     Decimal?  @map("deductible_applied") @db.Decimal(10, 2)
+  copay                 Decimal?  @map("copay") @db.Decimal(10, 2)
+  coinsurance           Decimal?  @map("coinsurance") @db.Decimal(10, 2)
+  planDoesNotCover      Decimal?  @map("plan_does_not_cover") @db.Decimal(10, 2)
+  claimProcessingCodes  String[]  @map("claim_processing_codes") @db.VarChar(20)
+  status                String    @default("draft") @db.VarChar(30)
+  statusDetail          String?   @map("status_detail")
+  submissionMethod      String?   @map("submission_method") @db.VarChar(20)
+  superbillId           String?   @map("superbill_id") @db.Uuid
+  advocateAction        String?   @map("advocate_action")
+  advocateComments      String?   @map("advocate_comments")
+  notes                 String?
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt             DateTime? @map("deleted_at") @db.Timestamptz
+
+  user                  User      @relation(fields: [userId], references: [id])
+  insuranceProvider     InsuranceProvider @relation(fields: [insuranceProviderId], references: [id])
+  clinic                ClinicOrganization @relation(fields: [clinicId], references: [id])
+  dependent             Dependent @relation(fields: [dependentId], references: [id])
+  superbill             Superbill? @relation(fields: [superbillId], references: [id])
+  claimEvents           ClaimEvent[]
+  paymentAllocations    PaymentAllocation[]
+  eobDocuments          EobDocument[]
+  reprocessingRequests  ReprocessingRequest[]
+  chatSessions          ChatSession[]
+  serviceLineItems      ServiceLineItem[]
+
+  @@map("claims")
+}
+
+model ClaimEvent {
+  id              String    @id @default(uuid()) @db.Uuid
+  claimId         String    @map("claim_id") @db.Uuid
+  eventType       String    @map("event_type") @db.VarChar(50)
+  eventDate       DateTime  @default(now()) @map("event_date") @db.Timestamptz
+  previousStatus  String?   @map("previous_status") @db.VarChar(30)
+  newStatus       String?   @map("new_status") @db.VarChar(30)
+  description     String?
+  metadataJson    Json?     @map("metadata_json") @db.JsonB
+  source          String    @default("manual") @db.VarChar(20)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  claim           Claim     @relation(fields: [claimId], references: [id])
+
+  @@map("claim_events")
+}
+
+model Payment {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  paymentDate     DateTime  @map("payment_date") @db.Date
+  paymentMethod   String    @map("payment_method") @db.VarChar(20)
+  checkNumber     String?   @map("check_number") @db.VarChar(50)
+  totalAmount     Decimal   @map("total_amount") @db.Decimal(10, 2)
+  payer           String?   @db.VarChar(255)
+  received        Boolean   @default(false)
+  notes           String?
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+
+  user            User      @relation(fields: [userId], references: [id])
+  allocations     PaymentAllocation[]
+
+  @@map("payments")
+}
+
+model PaymentAllocation {
+  id                String    @id @default(uuid()) @db.Uuid
+  paymentId         String    @map("payment_id") @db.Uuid
+  claimId           String    @map("claim_id") @db.Uuid
+  allocatedAmount   Decimal   @map("allocated_amount") @db.Decimal(10, 2)
+  isOverpayment     Boolean   @default(false) @map("is_overpayment")
+  adjustmentReason  String?   @map("adjustment_reason") @db.VarChar(100)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  payment           Payment   @relation(fields: [paymentId], references: [id])
+  claim             Claim     @relation(fields: [claimId], references: [id])
+
+  @@map("payment_allocations")
+}
+
+model EobDocument {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @map("user_id") @db.Uuid
+  insuranceProviderId   String    @map("insurance_provider_id") @db.Uuid
+  claimId               String?   @map("claim_id") @db.Uuid
+  receivedDate          DateTime? @map("received_date") @db.Date
+  eobDate               DateTime? @map("eob_date") @db.Date
+  filePath              String?   @map("file_path") @db.VarChar(500)
+  claimNumber           String?   @map("claim_number") @db.VarChar(100)
+  providerName          String?   @map("provider_name") @db.VarChar(255)
+  serviceDateStart      DateTime? @map("service_date_start") @db.Date
+  serviceDateEnd        DateTime? @map("service_date_end") @db.Date
+  providerBilled        Decimal?  @map("provider_billed") @db.Decimal(10, 2)
+  amountSaved           Decimal?  @map("amount_saved") @db.Decimal(10, 2)
+  planAllowedAmount     Decimal?  @map("plan_allowed_amount") @db.Decimal(10, 2)
+  planPaid              Decimal?  @map("plan_paid") @db.Decimal(10, 2)
+  appliedToDeductible   Decimal?  @map("applied_to_deductible") @db.Decimal(10, 2)
+  copay                 Decimal?  @db.Decimal(10, 2)
+  coinsurance           Decimal?  @db.Decimal(10, 2)
+  planDoesNotCover      Decimal?  @map("plan_does_not_cover") @db.Decimal(10, 2)
+  totalYouOwe           Decimal?  @map("total_you_owe") @db.Decimal(10, 2)
+  claimProcessingCodes  String[]  @map("claim_processing_codes") @db.VarChar(20)
+  adjustments           Decimal?  @db.Decimal(10, 2)
+  isReprocessed         Boolean   @default(false) @map("is_reprocessed")
+  notes                 String?
+  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt             DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt             DateTime? @map("deleted_at") @db.Timestamptz
+
+  user                  User      @relation(fields: [userId], references: [id])
+  insuranceProvider     InsuranceProvider @relation(fields: [insuranceProviderId], references: [id])
+  claim                 Claim?    @relation(fields: [claimId], references: [id])
+  planBalanceSnapshots  PlanBalanceSnapshot[]
+
+  @@map("eob_documents")
+}
+
+model ReprocessingRequest {
+  id                String    @id @default(uuid()) @db.Uuid
+  claimId           String    @map("claim_id") @db.Uuid
+  requestDate       DateTime  @map("request_date") @db.Date
+  reason            String?
+  reasonCode        String?   @map("reason_code") @db.VarChar(50)
+  submissionMethod  String?   @map("submission_method") @db.VarChar(20)
+  referenceNumber   String?   @map("reference_number") @db.VarChar(100)
+  status            String    @default("submitted") @db.VarChar(30)
+  outcome           String?
+  resolutionDate    DateTime? @map("resolution_date") @db.Date
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  claim             Claim     @relation(fields: [claimId], references: [id])
+
+  @@map("reprocessing_requests")
+}
+
+model ChatSession {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @map("user_id") @db.Uuid
+  claimId       String?   @map("claim_id") @db.Uuid
+  title         String?   @db.VarChar(255)
+  messagesJson  Json?     @map("messages_json") @db.JsonB
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  user          User      @relation(fields: [userId], references: [id])
+  claim         Claim?    @relation(fields: [claimId], references: [id])
+
+  @@map("chat_sessions")
+}
+
+model PlanBalanceSnapshot {
+  id                String    @id @default(uuid()) @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  dependentId       String    @map("dependent_id") @db.Uuid
+  eobId             String?   @map("eob_id") @db.Uuid
+  asOfDate          DateTime  @map("as_of_date") @db.Date
+  planYear          String    @map("plan_year") @db.VarChar(4)
+  networkType       String    @map("network_type") @db.VarChar(20)
+  scope             String    @db.VarChar(20)
+  deductibleMax     Decimal   @map("deductible_max") @db.Decimal(10, 2)
+  deductibleApplied Decimal   @map("deductible_applied") @db.Decimal(10, 2)
+  oopMax            Decimal   @map("oop_max") @db.Decimal(10, 2)
+  oopApplied        Decimal   @map("oop_applied") @db.Decimal(10, 2)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  user              User      @relation(fields: [userId], references: [id])
+  dependent         Dependent @relation(fields: [dependentId], references: [id])
+  eob               EobDocument? @relation(fields: [eobId], references: [id])
+
+  @@map("plan_balance_snapshots")
+}
+
+model Superbill {
+  id                  String    @id @default(uuid()) @db.Uuid
+  userId              String    @map("user_id") @db.Uuid
+  clinicId            String    @map("clinic_id") @db.Uuid
+  filePath            String?   @map("file_path") @db.VarChar(500)
+  billingPeriodStart  DateTime  @map("billing_period_start") @db.Date
+  billingPeriodEnd    DateTime  @map("billing_period_end") @db.Date
+  totalAmount         Decimal?  @map("total_amount") @db.Decimal(10, 2)
+  receivedDate        DateTime? @map("received_date") @db.Date
+  parsed              Boolean   @default(false)
+  notes               String?
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz
+
+  user                User      @relation(fields: [userId], references: [id])
+  clinic              ClinicOrganization @relation(fields: [clinicId], references: [id])
+  claims              Claim[]
+  serviceLineItems    ServiceLineItem[]
+
+  @@map("superbills")
+}
+
+model ServiceLineItem {
+  id                  String    @id @default(uuid()) @db.Uuid
+  userId              String    @map("user_id") @db.Uuid
+  clinicId            String    @map("clinic_id") @db.Uuid
+  dependentId         String    @map("dependent_id") @db.Uuid
+  insuranceProviderId String?   @map("insurance_provider_id") @db.Uuid
+  superbillId         String?   @map("superbill_id") @db.Uuid
+  claimId             String?   @map("claim_id") @db.Uuid
+  clinicianId         String    @map("clinician_id") @db.Uuid
+  dateOfService       DateTime  @map("date_of_service") @db.Date
+  cptCode             String    @map("cpt_code") @db.VarChar(10)
+  cptModifier         String?   @map("cpt_modifier") @db.VarChar(10)
+  units               Int       @default(1)
+  placeOfService      String?   @map("place_of_service") @db.VarChar(5)
+  diagnosisCodes      String[]  @map("diagnosis_codes") @db.VarChar(100)
+  description         String?
+  billedAmount        Decimal   @map("billed_amount") @db.Decimal(10, 2)
+  amountPaid          Decimal?  @map("amount_paid") @db.Decimal(10, 2)
+  allowedAmount       Decimal?  @map("allowed_amount") @db.Decimal(10, 2)
+  amountSaved         Decimal?  @map("amount_saved") @db.Decimal(10, 2)
+  planPaid            Decimal?  @map("plan_paid") @db.Decimal(10, 2)
+  deductibleApplied   Decimal?  @map("deductible_applied") @db.Decimal(10, 2)
+  copay               Decimal?  @map("copay") @db.Decimal(10, 2)
+  coinsurance         Decimal?  @map("coinsurance") @db.Decimal(10, 2)
+  planDoesNotCover    Decimal?  @map("plan_does_not_cover") @db.Decimal(10, 2)
+  amountOwed          Decimal?  @map("amount_owed") @db.Decimal(10, 2)
+  processingCodes     String[]  @map("processing_codes") @db.VarChar(20)
+  status              String    @default("unsubmitted") @db.VarChar(30)
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt           DateTime? @map("deleted_at") @db.Timestamptz
+
+  user                User      @relation(fields: [userId], references: [id])
+  clinic              ClinicOrganization @relation(fields: [clinicId], references: [id])
+  dependent           Dependent @relation(fields: [dependentId], references: [id])
+  insuranceProvider   InsuranceProvider? @relation(fields: [insuranceProviderId], references: [id])
+  superbill           Superbill? @relation(fields: [superbillId], references: [id])
+  claim               Claim?    @relation(fields: [claimId], references: [id])
+  clinician           Clinician @relation(fields: [clinicianId], references: [id])
+
+  @@map("service_line_items")
+}
+
+model ReconciliationReport {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @map("user_id") @db.Uuid
+  clinic             String?
+  patient            String?
+  billingPeriodStart DateTime @map("billing_period_start") @db.Date
+  billingPeriodEnd   DateTime @map("billing_period_end") @db.Date
+  fileName           String?  @map("file_name") @db.VarChar(500)
+  summaryJson        Json     @map("summary_json") @db.JsonB
+  itemsJson          Json     @map("items_json") @db.JsonB
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("reconciliation_reports")
+}
+
+model NonClaimableCharge {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  clinicId        String    @map("clinic_id") @db.Uuid
+  chargeType      String    @map("charge_type") @db.VarChar(50)
+  date            DateTime  @db.Date
+  amount          Decimal   @db.Decimal(10, 2)
+  clinicianId     String?   @map("clinician_id") @db.Uuid
+  description     String?
+  billingPeriod   String?   @map("billing_period") @db.VarChar(20)
+  notes           String?
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz
+
+  user            User      @relation(fields: [userId], references: [id])
+  clinic          ClinicOrganization @relation(fields: [clinicId], references: [id])
+  clinician       Clinician? @relation(fields: [clinicianId], references: [id])
+
+  @@map("non_claimable_charges")
+}
