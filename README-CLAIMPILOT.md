@@ -238,3 +238,5 @@ npm run db:seed           # Seed the demo user (email: demo@claimpilot.local, pa
 ## Public Snapshot Note
 
 This repository is a redacted public copy of a private working application. Real patient names, clinician names, NPIs, tax IDs, claim numbers, and example PDFs have been removed or replaced with placeholders. Example data in `docs/SPEC.md`, the runbook in `docs/portal-submission-runbook.md`, and the contents of `docs/examples/` are illustrative only. See `docs/examples/README.md` for guidance on supplying your own test documents.
+
+The seed fixture in `backend/prisma/seed-data.json` is a redacted snapshot of a real working dataset: real OON adjudication amounts, generated identifiers (clinician/clinic/patient names, NPIs, license numbers, claim numbers, member IDs), dates shifted by 30 months, free-text scrubbed. See [`backend/scripts/README.md`](backend/scripts/README.md) for the full redaction methodology.

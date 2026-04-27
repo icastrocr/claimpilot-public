@@ -3,6 +3,8 @@
 > Submission for the **Klaviyo AI Builder Residency** — April 2026
 > Built end-to-end by a non-engineer using AI-assisted development for a real, deployed-to-life problem.
 
+> **Looking for the traditional codebase README?** See [README-CLAIMPILOT.md](README-CLAIMPILOT.md) for architecture diagrams, status lifecycles, project layout, the full API surface, and version history. This README is the submission narrative.
+
 ---
 
 ## Problem Statement
@@ -255,7 +257,7 @@ A 5-minute walkthrough is published at this [Google Drive folder](https://drive.
 5. **What I'd build next** — multi-payer, reimbursement reconciliation, generalization to other self-filed paperwork (~30s).
 6. **Why I'm applying** — sign-off (~15s).
 
-To reproduce the demo locally, follow Getting Started above. Migrations and a demo user are seeded automatically on first boot — log in with email `demo@claimpilot.local` and password `password123`. The database otherwise starts empty; use the document-import flow to populate it with your own test PDFs (see [`docs/examples/README.md`](docs/examples/README.md) for the expected document shapes). No real PHI ships with the repo.
+To reproduce the demo locally, follow Getting Started above. The `demo@claimpilot.local / password123` user is seeded automatically on first boot, **pre-populated with a redacted snapshot of a real working dataset**: 13 claims spanning the lifecycle (draft → submitted → paid), 125 service line items, 2 reconciliation reports, full claim-event history. Real OON adjudication amounts are preserved so the financial story reads honestly; names, NPIs, claim numbers, and dates have been replaced with placeholders or shifted by 30 months. To start with an empty database instead, delete `backend/prisma/seed-data.json` before booting. To regenerate the fixture from a different source DB, see [`backend/scripts/README.md`](backend/scripts/README.md). No real PHI ships with the repo.
 
 ---
 
