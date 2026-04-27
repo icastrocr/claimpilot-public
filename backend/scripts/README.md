@@ -43,7 +43,8 @@ DATABASE_URL=postgres://claimpilot:claimpilot@localhost:5432/claimpilot \
 cd ~/tmp/seed-prep
 docker compose down -v       # wipe any prior DB volume
 docker compose up --build    # boots, runs migrations, seeds the fixture
-# Open http://localhost:3000, log in as demo / password123, click around.
+# Open http://localhost:3000 and log in with email demo@claimpilot.local
+# and password password123, then click around.
 
 # 5. When satisfied, copy backend/prisma/seed-data.json into your local
 #    checkout of the public repo and commit it.

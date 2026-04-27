@@ -68,7 +68,8 @@ cp .env.example .env
 # Add your ANTHROPIC_API_KEY to .env for document import.
 # The other defaults work for local development as-is.
 docker compose up --build
-# Open http://localhost:3000 — log in as demo / password123
+# Open http://localhost:3000
+# Log in with email demo@claimpilot.local and password password123
 # (the demo user is seeded automatically on first boot)
 ```
 
@@ -222,7 +223,7 @@ npm run dev        # Starts on port 3000 (Vite dev server)
 cd backend
 npx prisma migrate dev    # Create/apply migrations
 npx prisma studio         # Visual DB browser
-npm run db:seed           # Seed the demo user (handle: demo, password: password123)
+npm run db:seed           # Seed the demo user (email: demo@claimpilot.local, password: password123)
 ```
 
 ## Version History
