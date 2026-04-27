@@ -10,6 +10,7 @@
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset --force",
+    "db:export-redacted-fixture": "tsx scripts/export-redacted-fixture.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
