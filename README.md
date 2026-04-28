@@ -252,7 +252,7 @@ Open **http://localhost:3000** to use ClaimPilot.
 
 ## Demo
 
-A 5-minute walkthrough is published at this [Google Drive folder](https://drive.google.com/drive/folders/11X8ROvElqTzQdmJDL2v5gyDX25VlxRZx?usp=drive_link) (and linked from the application form's Video URL field). The video covers:
+A 5-minute walkthrough is published in this [Google Drive folder](https://drive.google.com/drive/folders/11X8ROvElqTzQdmJDL2v5gyDX25VlxRZx?usp=drive_link), and is also available directly on [Loom](https://www.loom.com/share/5f7f1a3b7a8b405d8855e803d76fb4a3) (and linked from the application form's Video URL field). The video covers:
 
 1. **The problem** — why OON behavioral-health filing is broken and who's affected (~45s).
 2. **Live demo of the working solution** — a Draft claim in ClaimPilot, prefilled into the insurer portal, edited via the React-internal handler, submitted, confirmation number captured, status updated in ClaimPilot (~75s).
@@ -301,7 +301,7 @@ Testing approach is end-to-end and supervised. Each monthly batch is a real test
 
 ClaimPilot is intentionally **not** a public-facing SaaS. The application runs locally on the user's machine because the data class — health information for a family member — does not belong on someone else's server.
 
-The repository is the artifact. A walkthrough video is linked in the application.
+The repository is the artifact. The walkthrough video is available directly on [Loom](https://www.loom.com/share/5f7f1a3b7a8b405d8855e803d76fb4a3) and in this [Google Drive folder](https://drive.google.com/drive/folders/11X8ROvElqTzQdmJDL2v5gyDX25VlxRZx?usp=drive_link), and is linked from the application form.
 
 ---
 
