@@ -17,13 +17,15 @@ Out-of-network (OON) behavioral-health claims in the U.S. are a structurally und
 
 **Why this matters:** the existing third-party services that "do the filing for you" take 5–10% of the recovered amount and still leave the family doing the document gathering. The structural gap is real software, owned by the patient, that turns a multi-hour evening of copy-paste into something a busy parent can finish in a sitting.
 
+**What this costs in practice:** over the past three and a half years, I've personally tracked 750+ appointments in a spreadsheet, spent over $150,000 out of pocket on my dependent's out-of-network care, and recovered about $126,000 from insurance (~84%, with more still in flight). And our case is, by no stretch, the most complex one I've seen. Other families either absorb significantly more of the cost — or simply can't afford access to these services in the first place.
+
 **What success looks like:**
 - A month's worth of claims is modeled, submitted, and reconciled in <30 minutes total.
 - Zero data lost to portal timeouts.
 - Every claim has a confirmation number and a downloaded PDF on file.
 - Reimbursements actually land — measurable in dollars recovered per cycle.
 
-**By the numbers (as of April 2026):**
+**By the numbers — ClaimPilot's track record since launch (as of April 2026):**
 
 | Metric | Count |
 |---|---|
