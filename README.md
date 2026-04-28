@@ -3,6 +3,8 @@
 > Submission for the **Klaviyo AI Builder Residency** — April 2026
 > Built end-to-end by a non-engineer using AI-assisted development for a real, deployed-to-life problem.
 
+> **About this repository.** This is a public copy of a private working application. It was initialized as a brand-new git repository — no commit history from the original — because the original repo contained Protected Health Information (PHI: patient names, dates of service, claim financials, insurer identifiers) that couldn't be safely scrubbed from past commits. Starting fresh was the only honest path. Identifiers throughout the codebase have been replaced with placeholders or shifted; real adjudication amounts are preserved so the financial story reads honestly.
+
 > **Looking for the traditional codebase README?** See [README-CLAIMPILOT.md](README-CLAIMPILOT.md) for architecture diagrams, status lifecycles, project layout, the full API surface, and version history. This README is the submission narrative.
 
 ---
@@ -73,7 +75,7 @@ The AI doesn't make the *clinical decisions* — those are the family's medical 
 - **Claude Sonnet 4 for PDF extraction:** the extraction task isn't OCR — Superbills and EoBs are typically already digital text PDFs. The hard part is the *variability of layout* across different providers and insurers, where deterministic templates would require a parser per format. A capable LLM, called with a strict structured-output schema, generalizes across formats with one prompt per document type. Sonnet 4 hits the cost/quality point that makes per-document calls trivially cheap relative to time saved.
 - **Claude (Cowork) over deterministic script for portal automation:** the portal's DOM is unstable, fields revert silently, and the prefill flow's "previous claim" list reorders. A deterministic Selenium-style script would be a nightmare to maintain. An agent that re-reads the DOM after each action and reasons about state recovers gracefully.
 - **Claude Code over alternatives for build-time:** I'm a PM, not a software engineer. Claude Code's "spec-driven" affordance — accepting a constraint-rich problem statement and producing reviewable diffs — is the closest match to how I already think.
-- **Local-first via Docker Compose over hosted SaaS:** the data is PHI for a member of my family. The default answer for that data class is "stays on this machine." `docker compose up` sidesteps the entire HIPAA-compliance burden of hosted deployment, while keeping the architecture portable to a HIPAA-compliant cloud later if the product ever serves users beyond me.
+- **Local-first via Docker Compose over hosted SaaS:** the data is PHI (Protected Health Information) for a member of my family. The default answer for that data class is "stays on this machine." `docker compose up` sidesteps the entire compliance burden of hosting this kind of data under HIPAA (the U.S. law governing how health information must be handled), while keeping the architecture portable to a HIPAA-compliant cloud later if the product ever serves users beyond me.
 
 **Tradeoffs considered**
 - **LLM extraction cost vs. accuracy.** Each PDF extraction is one Sonnet 4 call with structured output. At monthly batch volume the bill is negligible. If this product ever served thousands of users, I'd add a cheaper-model first pass with confidence-based escalation to Sonnet for low-confidence pages.
@@ -183,7 +185,7 @@ claimpilot/
 **Tradeoffs and assumptions**
 - **Local-first via Docker Compose over hosted SaaS.** I lose remote backup convenience. I sidestep the entire HIPAA-compliance burden of hosted PHI. The architecture remains portable to a HIPAA-compliant cloud later if the product ever serves users beyond my household.
 - **LLM extraction over deterministic PDF parsing.** I lose deterministic, free-tier extraction. I gain robustness across the long tail of document layouts that providers and insurers actually use, and I never have to write a parser-per-format.
-- **Browser-side automation over headless / RPA framework.** I lose unattended scheduling. I gain "user is logged in and supervising," which both respects the insurer's TOS spirit and keeps me honest about which step I want a human to approve.
+- **Browser-side automation over headless / RPA (Robotic Process Automation) framework.** I lose unattended scheduling. I gain "user is logged in and supervising," which both respects the insurer's TOS spirit and keeps me honest about which step I want a human to approve.
 - **Runbook-as-memory over vector-store RAG.** I lose semantic search. I gain a small, hand-curated, fully-correct memory layer — which is what this domain actually needs.
 - **TanStack Query over Redux/Zustand.** Server state lives where the server is. Client-only state is small enough that React hooks suffice.
 - **Prisma over a hand-rolled SQL layer.** Type-safe migrations and type-generated query helpers are worth the abstraction cost when a non-engineer is the maintainer.

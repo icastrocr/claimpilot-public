@@ -944,6 +944,7 @@ Use these prompts when starting each phase in Claude Code:
 
 | Term | Definition |
 |------|-----------|
+| PHI | Protected Health Information — under U.S. law (HIPAA), this includes any patient-identifying health data such as names tied to medical conditions, dates of service, treatment details, and insurer identifiers |
 | EOB | Explanation of Benefits — a statement from the insurer detailing how a claim was processed, what was paid, and what the patient owes |
 | CPT Code | Current Procedural Terminology — standardized codes for medical services (e.g., 90837 = 60-min therapy session) |
 | ICD-10 | International Classification of Diseases, 10th revision — diagnosis codes used on claims |
